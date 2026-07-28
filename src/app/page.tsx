@@ -7,27 +7,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 
 export default async function Home() {
-  const session = await getServerSession();
+  // Auth.js v5 universal server-side session check
+  const session = await auth();
+
   if (session?.user) {
     redirect("/dashboard");
   }
+
   return (
-    <div className="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-      <Card className="w-[300px]">
-        <CardHeader>
-          <CardTitle>Welcome to Quizzzy 🔥!</CardTitle>
-          <CardDescription>
-            Quizzzy is a platform for creating quizzes using AI!. Get started by
-            loggin in below!
+    <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
+      <Card className="w-full max-w-sm border-border bg-card text-card-foreground shadow-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl font-bold tracking-tight">
+            Welcome to Quizzzy 🔥!
+          </CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Quizzzy is an AI-powered platform for generating dynamic quizzes. Get started by logging in below!
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex justify-center">
           <SignInButton text="Sign In with Google" />
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }
