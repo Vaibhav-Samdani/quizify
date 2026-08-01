@@ -3,7 +3,7 @@
 import { quizCreationSchema } from "@/schemas/forms/quiz";
 import React, { useState } from "react";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -43,7 +43,7 @@ const QuizCreation = ({ topic: topicParam }: Props) => {
   const [finishedLoading, setFinishedLoading] = useState(false);
   const { toast } = useToast();
 
-  const { mutate: getQuestions, isLoading } = useMutation({
+  const { mutate: getQuestions, isPending } = useMutation({
     mutationFn: async ({ amount, topic, type }: InputType) => {
       const response = await axios.post("/api/game", { amount, topic, type });
       return response.data;
@@ -60,7 +60,10 @@ const QuizCreation = ({ topic: topicParam }: Props) => {
   });
 
   // Optimize re-renders: Only watch the 'type' field instead of the whole form
-  const currentQuizType = form.watch("type");
+const currentQuizType = useWatch({
+  control: form.control,
+  name: "type",
+});
 
   const onSubmit = async (data: InputType) => {
     setShowLoader(true);
@@ -224,12 +227,12 @@ const QuizCreation = ({ topic: topicParam }: Props) => {
 
                 {/* Submit Button */}
                 <Button 
-                  disabled={isLoading} 
+                  disabled={isPending} 
                   type="submit" 
                   size="lg"
                   className="mt-6 w-full text-base font-semibold shadow-md transition-transform active:scale-[0.98]"
                 >
-                  {isLoading ? (
+                  {isPending ? (
                     "Warming up the AI..."
                   ) : (
                     <>

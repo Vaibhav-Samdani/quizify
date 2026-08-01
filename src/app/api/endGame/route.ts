@@ -1,8 +1,9 @@
-import  prisma  from "@/lib/db";
+import prisma from "@/lib/db";
 import { endGameSchema } from "@/schemas/questions";
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { gameId } = endGameSchema.parse(body);
@@ -12,6 +13,7 @@ export async function POST(req: Request, res: Response) {
         id: gameId,
       },
     });
+
     if (!game) {
       return NextResponse.json(
         {
@@ -22,6 +24,7 @@ export async function POST(req: Request, res: Response) {
         }
       );
     }
+
     await prisma.game.update({
       where: {
         id: gameId,
@@ -30,10 +33,22 @@ export async function POST(req: Request, res: Response) {
         timeEnded: new Date(),
       },
     });
+
     return NextResponse.json({
       message: "Game ended",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          message: error.issues,
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     return NextResponse.json(
       {
         message: "Something went wrong",

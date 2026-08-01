@@ -37,7 +37,7 @@ const Dashboard = async () => {
             Welcome back, {firstName}! 👋
           </h1>
           <p className="text-sm text-muted-foreground sm:text-base">
-            Here's an overview of your quiz activity, trending topics, and learning progress.
+            Here&apos;s an overview of your quiz activity, trending topics, and learning progress.
           </p>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Game, Question } from "@prisma/client";
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
@@ -19,6 +19,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { z } from "zod";
 import { useToast } from "./ui/use-toast";
+import { Game, Question } from "@/generated/prisma/client";
 
 type Props = {
   game: Game & { questions: Pick<Question, "id" | "options" | "question">[] };
@@ -50,7 +51,7 @@ const MCQ = ({ game }: Props) => {
     }
   }, [currentQuestion]);
 
-  const { mutate: checkAnswer, isLoading: isChecking } = useMutation({
+  const { mutate: checkAnswer, isPending: isChecking } = useMutation({
     mutationFn: async () => {
       const payload: z.infer<typeof checkAnswerSchema> = {
         questionId: currentQuestion.id,

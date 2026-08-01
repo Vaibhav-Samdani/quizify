@@ -1,11 +1,11 @@
-import  prisma  from "@/lib/db";
+import prisma from "@/lib/db";
 import { getAuthSession } from "@/lib/nextauth";
 import { quizCreationSchema } from "@/schemas/forms/quiz";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import axios from "axios";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     const session = await getAuthSession();
     if (!session?.user) {
@@ -115,7 +115,8 @@ export async function POST(req: Request, res: Response) {
     }
   }
 }
-export async function GET(req: Request, res: Response) {
+
+export async function GET(req: Request) {
   try {
     const session = await getAuthSession();
     if (!session?.user) {
@@ -157,12 +158,12 @@ export async function GET(req: Request, res: Response) {
     return NextResponse.json(
       { game },
       {
-        status: 400,
+        status: 200,
       }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "An unexpected error occurred." },
+      { error: "An unexpected error occurred.", message: (error as Error).message },
       {
         status: 500,
       }
