@@ -1,54 +1,68 @@
 import OpenAI from "openai";
-import { z, ZodType } from "zod"; // Swap ZodSchema for ZodType
-import { zodResponseFormat } from "openai/helpers/zod";
 
-// Initialize the standard OpenAI SDK, but route it through OpenRouter
 const openrouter = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY,
   defaultHeaders: {
-    "HTTP-Referer": process.env.NEXTAUTH_URL || "http://localhost:3000", // Required by OpenRouter
-    "X-Title": "Quizmify", // Optional: Shows in your OpenRouter dashboard
+    "HTTP-Referer": process.env.NEXTAUTH_URL || "http://localhost:3000",
+    "X-Title": "Quizify",
   },
 });
 
+export async function strict_output(
+  systemPrompt: string,
+  userPrompt: string | string[],
+  outputFormat: Record<string, string>,
+  model = "openrouter/free",
+  temperature = 0.7
+) {
+  const prompt = Array.isArray(userPrompt)
+    ? userPrompt.join("\n")
+    : userPrompt;
 
-export async function strict_output<T>(
-  system_prompt: string,
-  user_prompt: string | string[],
-  schema: ZodType<T>, // Use ZodType here
-  model: string = "meta-llama/llama-4-maverick:free",
-  temperature: number = 0.7
-): Promise<T> {
-  const promptText = Array.isArray(user_prompt) ? user_prompt.join("\n") : user_prompt;
+  const response = await openrouter.chat.completions.create({
+    model,
+    temperature,
+    messages: [
+      {
+        role: "system",
+        content: `${systemPrompt}
+
+You MUST respond with ONLY valid JSON.
+
+The JSON should be an array of objects.
+
+Each object must have the following fields:
+
+${JSON.stringify(outputFormat, null, 2)}
+
+Rules:
+- Return ONLY JSON.
+- Do NOT wrap it in \`\`\`json.
+- Do NOT include explanations.
+- Do NOT include any extra text.`,
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+  });
+
+  const content = response.choices[0].message.content;
+
+  if (!content) {
+    throw new Error("No response received from model.");
+  }
 
   try {
-    const response = await openrouter.chat.completions.parse({
-      model,
-      temperature,
-      messages: [
-        {
-          role: "system",
-          content: system_prompt,
-        },
-        {
-          role: "user",
-          content: promptText,
-        },
-      ],
-      // We enforce the Zod schema exactly like we would with OpenAI
-      response_format: zodResponseFormat(schema, "quiz_payload"),
-    });
+    return JSON.parse(content);
+  } catch {
+    const cleaned = content
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
 
-    const parsed = response.choices[0].message.parsed;
-
-    if (!parsed) {
-      throw new Error("Failed to receive structured output from OpenRouter.");
-    }
-
-    return parsed;
-  } catch (error) {
-    console.error("OpenRouter Structured Output Error:", error);
-    throw error;
+    return JSON.parse(cleaned);
   }
 }

@@ -1,48 +1,60 @@
 import React from "react";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Award, Trophy } from "lucide-react";
-type Props = { accuracy: number };
+import { cn } from "@/lib/utils";
+
+type Props = { 
+  accuracy: number; 
+};
 
 const ResultsCard = ({ accuracy }: Props) => {
+  // Determine performance tier
+  let tier = "bronze";
+  if (accuracy >= 75) tier = "gold";
+  else if (accuracy >= 25) tier = "silver";
+
+  // Map tiers to their respective styles and copy
+  const tierConfig = {
+    gold: {
+      title: "Impressive!",
+      subtext: "≥ 75% accuracy",
+      colorClass: "text-yellow-500",
+    },
+    silver: {
+      title: "Good job!",
+      subtext: "≥ 25% accuracy",
+      colorClass: "text-zinc-500 dark:text-zinc-400",
+    },
+    bronze: {
+      title: "Nice try!",
+      subtext: "< 25% accuracy",
+      colorClass: "text-amber-800 dark:text-amber-600",
+    },
+  };
+
+  const config = tierConfig[tier as keyof typeof tierConfig];
+
   return (
-    <Card className="md:col-span-7">
+    <Card className="md:col-span-7 transition-all duration-300 hover:scale-[1.02] hover:shadow-md animate-in fade-in zoom-in-95">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
         <CardTitle className="text-2xl font-bold">Results</CardTitle>
-        <Award />
+        <Award className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center h-3/5">
-        {accuracy > 75 ? (
-          <>
-            <Trophy className="mr-4" stroke="gold" size={50} />
-            <div className="flex flex-col text-2xl font-semibold text-yellow-400">
-              <span className="">Impressive!</span>
-              <span className="text-sm text-center text-black opacity-50">
-                {"> 75% accuracy"}
-              </span>
-            </div>
-          </>
-        ) : accuracy > 25 ? (
-          <>
-            <Trophy className="mr-4" stroke="silver" size={50} />
-            <div className="flex flex-col text-2xl font-semibold text-stone-400">
-              <span className="">Good job!</span>
-              <span className="text-sm text-center text-black opacity-50">
-                {"> 25% accuracy"}
-              </span>
-            </div>
-          </>
-        ) : (
-          <>
-            <Trophy className="mr-4" stroke="brown" size={50} />
-            <div className="flex flex-col text-2xl font-semibold text-yellow-800">
-              <span className="">Nice try!</span>
-              <span className="text-sm text-center text-black opacity-50">
-                {"< 25% accuracy"}
-              </span>
-            </div>
-          </>
-        )}
+      
+      <CardContent className="flex h-3/5 flex-col items-center justify-center space-y-4">
+        <Trophy 
+          className={cn("h-16 w-16", config.colorClass)} 
+          strokeWidth={1.5} 
+        />
+        
+        <div className="flex flex-col items-center text-center gap-1">
+          <span className={cn("text-2xl font-bold tracking-tight", config.colorClass)}>
+            {config.title}
+          </span>
+          <span className="text-sm font-medium text-muted-foreground">
+            {config.subtext}
+          </span>
+        </div>
       </CardContent>
     </Card>
   );
