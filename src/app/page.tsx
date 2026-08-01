@@ -108,7 +108,7 @@ export default async function Home() {
             )}
 
             <Link
-              href="https://github.com/Vaibhav-Samdani/quizify"
+              href="https://github.com/Vaibhav-Samdani/quizzzy-ai"
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
@@ -391,7 +391,7 @@ export default async function Home() {
               <Globe className="h-4 w-4" aria-hidden="true" /> Portfolio
             </Link>
             <Link
-              href="https://github.com/Vaibhav-Samdani/quizify"
+              href="https://github.com/Vaibhav-Samdani/quizzzy-ai"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors flex items-center gap-1.5 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"

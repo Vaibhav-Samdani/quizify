@@ -42,6 +42,10 @@ yarn-error.log*
 next-env.d.ts
 
 
+# Prisma generated client and engines
+/src/generated/*
+
+
 .agents/
 .claude/
 .windsurf/

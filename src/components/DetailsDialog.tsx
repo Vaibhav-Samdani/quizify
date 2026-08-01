@@ -82,7 +82,7 @@ const DetailsDialog = () => {
         <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-end">
           <Link
             className={cn(buttonVariants({ variant: "secondary" }), "w-full gap-2 sm:w-auto")}
-            href="https://github.com/Vaibhav-Samdani/quizify"
+            href="https://github.com/Vaibhav-Samdani/quizzzy-ai"
             target="_blank"
             rel="noopener noreferrer"
           >

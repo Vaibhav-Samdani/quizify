@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://github.com/Vaibhav-Samdani/quizify", 
+    url: "https://github.com/Vaibhav-Samdani/quizzzy-ai",
     title: "Quizzzy | AI-Powered Trivia & Quizzes",
     description: "Generate personalized quizzes on any topic instantly using the power of AI.",
     siteName: "Quizzzy",
