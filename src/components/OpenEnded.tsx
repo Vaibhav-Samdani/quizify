@@ -1,7 +1,7 @@
 "use client";
 
 import { cn, formatTimeDelta } from "@/lib/utils";
-import { Game, Question } from "@prisma/client";
+import { Game, Question } from "@/generated/prisma/client";
 import { differenceInSeconds } from "date-fns";
 import { BarChart, ChevronRight, Loader2, Timer, Trophy } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -51,7 +51,7 @@ const OpenEnded = ({ game }: Props) => {
     },
   });
 
-  const { mutate: checkAnswer, isLoading: isChecking } = useMutation({
+  const { mutate: checkAnswer, isPending: isChecking } = useMutation({
     mutationFn: async () => {
       let filledAnswer = blankAnswer;
       // Note: Direct DOM manipulation in React is usually an anti-pattern, 

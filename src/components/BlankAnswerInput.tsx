@@ -12,50 +12,64 @@ type Props = {
 const BLANK = "_____";
 
 const BlankAnswerInput = ({ answer, setBlankAnswer }: Props) => {
-  // 1. Extract keywords and split the answer into parts
-  const { answerWithBlanks, parts } = useMemo(() => {
+  // 1. Pure deterministic extraction of keywords (avoids Math.random during render)
+  const { parts } = useMemo(() => {
     const words = keyword_extractor.extract(answer, {
       language: "english",
       remove_digits: true,
       return_changed_case: false,
       remove_duplicates: false,
     });
-    
-    // Shuffle and pick 2 keywords
-    const shuffled = words.sort(() => 0.5 - Math.random());
-    const selectedKeywords = shuffled.slice(0, 2);
 
-    // Replace the chosen keywords with our BLANK token
+    if (words.length === 0) {
+      return { parts: [answer] };
+    }
+
+    // Hash-based deterministic shuffle to pick 2 keywords consistently per answer
+    let hash = 0;
+    for (let i = 0; i < answer.length; i++) {
+      hash = (hash << 5) - hash + answer.charCodeAt(i);
+      hash |= 0;
+    }
+
+    const selectedKeywords = [...words]
+      .sort((a, b) => {
+        const hashA = Math.abs((hash ^ a.length) * 31);
+        const hashB = Math.abs((hash ^ b.length) * 31);
+        return hashA - hashB;
+      })
+      .slice(0, 2);
+
+    // Replace chosen keywords with BLANK token
     const blanked = selectedKeywords.reduce((acc, curr) => {
-      // Using a regex with word boundaries (\b) prevents replacing partial words.
-      // E.g., preventing "art" from being replaced inside the word "earth".
       const regex = new RegExp(`\\b${curr}\\b`, "gi");
       return acc.replace(regex, BLANK);
     }, answer);
 
     return {
-      answerWithBlanks: blanked,
       parts: blanked.split(BLANK),
     };
   }, [answer]);
 
-  // 2. Local state to track what the user types into each input box
-  const [inputValues, setInputValues] = useState<string[]>([]);
+  // 2. Adjust input state synchronously during render when `answer` changes (avoids setState in effect warning)
+  const [prevAnswer, setPrevAnswer] = useState(answer);
+  const [inputValues, setInputValues] = useState<string[]>(() =>
+    Array(Math.max(0, parts.length - 1)).fill("")
+  );
 
-  // Reset the input boxes whenever the question (answer prop) changes
-  useEffect(() => {
-    setInputValues(Array(parts.length - 1).fill(""));
-  }, [parts]);
+  if (prevAnswer !== answer) {
+    setPrevAnswer(answer);
+    setInputValues(Array(Math.max(0, parts.length - 1)).fill(""));
+  }
 
-  // 3. Reconstruct the full string whenever the user types, and send it to the parent
+  // 3. Reconstruct full string and communicate to parent
   useEffect(() => {
     const filledAnswer = parts.reduce((acc, part, index) => {
       const inputValue = inputValues[index] || "";
-      // The final text part doesn't have a trailing input box
       const isLastPart = index === parts.length - 1;
       return acc + part + (isLastPart ? "" : inputValue);
     }, "");
-    
+
     setBlankAnswer(filledAnswer);
   }, [inputValues, parts, setBlankAnswer]);
 
@@ -69,8 +83,6 @@ const BlankAnswerInput = ({ answer, setBlankAnswer }: Props) => {
 
   return (
     <div className="mt-4 flex w-full justify-start">
-      {/* Added leading-loose so that if the sentence wraps to two lines, 
-          the input borders don't overlap with the text below them */}
       <h1 className="text-xl font-semibold leading-loose text-zinc-800 dark:text-zinc-200">
         {parts.map((part, index) => {
           const isLast = index === parts.length - 1;
@@ -84,8 +96,9 @@ const BlankAnswerInput = ({ answer, setBlankAnswer }: Props) => {
                   onChange={(e) => handleInputChange(index, e.target.value)}
                   className={cn(
                     "mx-2 w-28 border-b-2 border-zinc-800 bg-transparent text-center transition-all focus:border-primary focus:outline-none dark:border-zinc-200",
-                    // Highlight the border slightly if the user has typed something
-                    inputValues[index] ? "border-b-4 border-primary" : "focus:border-b-4"
+                    inputValues[index]
+                      ? "border-b-4 border-primary"
+                      : "focus:border-b-4"
                   )}
                 />
               )}

@@ -1,16 +1,18 @@
-import  prisma  from "@/lib/db";
+import prisma from "@/lib/db";
 import { checkAnswerSchema } from "@/schemas/questions";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import stringSimilarity from "string-similarity";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { questionId, userInput } = checkAnswerSchema.parse(body);
+    
     const question = await prisma.question.findUnique({
       where: { id: questionId },
     });
+
     if (!question) {
       return NextResponse.json(
         {
@@ -21,17 +23,21 @@ export async function POST(req: Request, res: Response) {
         }
       );
     }
+
     await prisma.question.update({
       where: { id: questionId },
       data: { userAnswer: userInput },
     });
+
     if (question.questionType === "mcq") {
       const isCorrect =
         question.answer.toLowerCase().trim() === userInput.toLowerCase().trim();
+      
       await prisma.question.update({
         where: { id: questionId },
         data: { isCorrect },
       });
+
       return NextResponse.json({
         isCorrect,
       });
@@ -40,15 +46,23 @@ export async function POST(req: Request, res: Response) {
         question.answer.toLowerCase().trim(),
         userInput.toLowerCase().trim()
       );
+      
       percentageSimilar = Math.round(percentageSimilar * 100);
+      
       await prisma.question.update({
         where: { id: questionId },
         data: { percentageCorrect: percentageSimilar },
       });
+
       return NextResponse.json({
         percentageSimilar,
       });
     }
+
+    return NextResponse.json(
+      { message: "Invalid question type" },
+      { status: 400 }
+    );
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
@@ -60,5 +74,14 @@ export async function POST(req: Request, res: Response) {
         }
       );
     }
+    
+    return NextResponse.json(
+      {
+        message: "Internal Server Error",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

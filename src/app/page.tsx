@@ -211,7 +211,7 @@ export default async function Home() {
               </div>
               <h3 className="text-2xl font-bold mb-3 tracking-tight">Infinite Topic Generation</h3>
               <p className="text-muted-foreground leading-relaxed max-w-lg">
-                Whether it's niche biochemistry, advanced macroeconomics, or ancient philosophy —
+                Whether it&apos;s niche biochemistry, advanced macroeconomics, or ancient philosophy —
                 context-aware generation builds accurate, high-rigor quizzes on command.
               </p>
             </div>
