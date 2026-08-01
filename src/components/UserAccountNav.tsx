@@ -12,7 +12,7 @@ import {
 import UserAvatar from "./UserAvatar";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { LogOut } from "lucide-react";
+import { LogOut, LayoutDashboard } from "lucide-react";
 
 type Props = {
   user: Pick<User, "name" | "image" | "email">;
@@ -21,29 +21,37 @@ type Props = {
 const UserAccountNav = ({ user }: Props) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger className="outline-none">
         <UserAvatar
-          className="w-10 h-10"
+          className="h-10 w-10 transition-transform hover:scale-105"
           user={{
             name: user.name || null,
             image: user.image || null,
           }}
         />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-white" align="end">
+      
+      {/* Removed hardcoded bg-white to support Dark Mode */}
+      <DropdownMenuContent className="w-60" align="end">
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
             {user.name && <p className="font-medium">{user.name}</p>}
             {user.email && (
-              <p className="w-[200px] truncate text-sm text-zinc-700">
+              <p className="w-[200px] truncate text-sm text-muted-foreground">
                 {user.email}
               </p>
             )}
           </div>
         </div>
+        
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/">Meow</Link>
+        
+        {/* Upgraded your "Meow" link to a functional looking Dashboard link */}
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/dashboard" className="flex items-center">
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Dashboard
+          </Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -53,10 +61,10 @@ const UserAccountNav = ({ user }: Props) => {
             event.preventDefault();
             signOut().catch(console.error);
           }}
-          className="text-red-600 cursor-pointer"
+          className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-950 dark:focus:text-red-400"
         >
+          <LogOut className="mr-2 h-4 w-4" />
           Sign out
-          <LogOut className="w-4 h-4 ml-2 " />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

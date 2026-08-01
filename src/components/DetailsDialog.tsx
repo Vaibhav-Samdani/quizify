@@ -8,132 +8,97 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Github, HelpCircle, Youtube } from "lucide-react";
+import { CircleHelp, Globe } from "lucide-react"; 
 import Link from "next/link";
 import Image from "next/image";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {Github} from "@/components/ui/Github";
 
-type Props = {};
+// Inline SVG for GitHub (matches Lucide's style)
 
-const DetailsDialog = (props: Props) => {
+
+const techStack = [
+  { name: "Next.js", logo: "/nextjs.png" },
+  { name: "Tailwind CSS", logo: "/tailwind.png" },
+  { name: "NextAuth", logo: "/nextauth.png" },
+  { name: "OpenRouter", logo: "/openrouter.png" },
+  { name: "React Query", logo: "/react-query.png" },
+  { name: "Prisma", logo: "/prisma.png" },
+  { name: "TypeScript", logo: "/typescript.png" },
+];
+
+const DetailsDialog = () => {
   return (
     <Dialog>
-      <DialogTrigger>
-        <span className="flex items-center px-2 py-1 text-white rounded-md bg-slate-800">
-          What is this
-          <HelpCircle className="w-5 h-5 ml-1" />
-        </span>
+      <DialogTrigger asChild>
+        <button className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}>
+          What is this?
+          <CircleHelp className="h-4 w-4 text-muted-foreground" />
+        </button>
       </DialogTrigger>
-      <DialogContent className="w-[70vw] max-w-[100vw] md:w-[50vw]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Welcome to Quizzzy!</DialogTitle>
-          <DialogDescription>
-            {/* <div className="flex items-center gap-3 my-2">
-              <p className="flex items-center">
-                <Github className="w-5 h-5" />
-                <Link
-                  className="ml-1 underline"
-                  href="https://github.com/elliott-chong/Quizzzy"
-                >
-                  GitHub
-                </Link>
-              </p>
-              <p className="flex items-center">
-                <Youtube className="w-5 h-5" />
-                <Link
-                  className="ml-1 underline"
-                  href="https://youtube.com/@elliottchong"
-                >
-                  YouTube
-                </Link>
-              </p>
-            </div> */}
-            <p className="my-2 mt-4 ">
-              Are you tired of mundane and repetitive quizzes? Say goodbye to
-              the ordinary and embrace the extraordinary with Quizmefy! Our
-              platform is revolutionizing the quiz and trivia experience by
-              harnessing the immense potential of artificial intelligence.
-            </p>
-            <hr />
-            <p className="my-2 font-semibold">
-              <h4 className="text-base font-semibold">Built with</h4>
-              <div className="grid justify-around grid-cols-4 mt-2 gap-y-3">
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="planetscale"
-                    src="/planetscale.png"
-                    width={35}
-                    height={35}
-                  />
-                  <span className="">Planet Scale</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="nextjs"
-                    src="/nextjs.png"
-                    width={35}
-                    height={35}
-                  />
-                  <span className="">Next.js</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="tailwind"
-                    src="/tailwind.png"
-                    width={35}
-                    height={35}
-                  />
-                  <span className="">Tailwind</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="nextauth"
-                    src="/nextauth.png"
-                    width={30}
-                    height={30}
-                  />
-                  <span className="">NextAuth</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="openai"
-                    src="/openai.png"
-                    width={30}
-                    height={30}
-                  />
-                  <span className="">OpenAI</span>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="react query"
-                    src="/react-query.png"
-                    width={30}
-                    height={30}
-                  />
-                  <span className="">React Query</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="primsa"
-                    src="/prisma.png"
-                    width={30}
-                    height={30}
-                  />
-                  <span className="">Prisma</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Image
-                    alt="typescript"
-                    src="/typescript.png"
-                    width={30}
-                    height={30}
-                  />
-                  <span className="">TypeScript</span>
-                </div>
-              </div>
-            </p>
+      <DialogContent className="max-w-[90vw] rounded-xl sm:max-w-[70vw] md:max-w-[50vw]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold tracking-tight">
+            Welcome to Quizzzy!
+          </DialogTitle>
+          <DialogDescription className="mt-2 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Are you tired of mundane and repetitive quizzes? Say goodbye to
+            the ordinary and embrace the extraordinary with Quizzzy! Our
+            platform revolutionizes the quiz and trivia experience by
+            harnessing the immense potential of artificial intelligence.
           </DialogDescription>
         </DialogHeader>
+
+        <div className="my-2 h-[1px] w-full bg-border" />
+
+        <div className="mt-2">
+          <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Built with
+          </h4>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {techStack.map((tech) => (
+              <div
+                key={tech.name}
+                className="flex items-center gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-2 shadow-sm transition-all hover:scale-105 dark:border-zinc-800 dark:bg-zinc-900/50"
+              >
+                <div className="relative h-6 w-6">
+                  <Image
+                    alt={tech.name}
+                    src={tech.logo}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <span className="text-sm font-medium tracking-tight text-zinc-700 dark:text-zinc-300">
+                  {tech.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-end">
+          <Link
+            className={cn(buttonVariants({ variant: "secondary" }), "w-full gap-2 sm:w-auto")}
+            href="https://github.com/Vaibhav-Samdani/quizify"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Github className="h-4 w-4" />
+            GitHub
+          </Link>
+          <Link
+            className={cn(buttonVariants({ variant: "default" }), "w-full gap-2 sm:w-auto")}
+            href="https://vaibhavsamdani.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Globe className="h-4 w-4" />
+            Portfolio
+          </Link>
+        </div>
       </DialogContent>
     </Dialog>
   );
