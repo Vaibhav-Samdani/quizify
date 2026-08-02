@@ -4,16 +4,16 @@ import { quizCreationSchema } from "@/schemas/forms/quiz";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import axios from "axios";
+import { requireUser } from "@/lib/verifyUser";
 
 export async function POST(req: Request) {
   try {
-    const session = await getAuthSession();
-    if (!session?.user) {
+    const user = await requireUser();
+    // console.log("Game ---->", user);
+    if (!user) {
       return NextResponse.json(
-        { error: "You must be logged in to create a game." },
-        {
-          status: 401,
-        }
+        { error: "Unauthorized", success: false },
+        { status: 401 },
       );
     }
     const body = await req.json();
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       data: {
         gameType: type,
         timeStarted: new Date(),
-        userId: session.user.id,
+        userId: user.id,
         topic,
       },
     });
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         amount,
         topic,
         type,
-      }
+      },
     );
 
     if (type === "mcq") {
@@ -103,14 +103,14 @@ export async function POST(req: Request) {
         { error: error.issues },
         {
           status: 400,
-        }
+        },
       );
     } else {
       return NextResponse.json(
         { error: "An unexpected error occurred." },
         {
           status: 500,
-        }
+        },
       );
     }
   }
@@ -124,7 +124,7 @@ export async function GET(req: Request) {
         { error: "You must be logged in to create a game." },
         {
           status: 401,
-        }
+        },
       );
     }
     const url = new URL(req.url);
@@ -134,7 +134,7 @@ export async function GET(req: Request) {
         { error: "You must provide a game id." },
         {
           status: 400,
-        }
+        },
       );
     }
 
@@ -151,7 +151,7 @@ export async function GET(req: Request) {
         { error: "Game not found." },
         {
           status: 404,
-        }
+        },
       );
     }
 
@@ -159,14 +159,18 @@ export async function GET(req: Request) {
       { game },
       {
         status: 200,
-      }
+      },
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
-      { error: "An unexpected error occurred.", message: (error as Error).message },
+      {
+        error: "An unexpected error occurred.",
+        message: (error as Error).message,
+      },
       {
         status: 500,
-      }
+      },
     );
   }
 }
